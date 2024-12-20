@@ -1,0 +1,313 @@
+openapi: 3.0.0
+info:
+  title: Snake Game API
+  description: API for controlling and getting state of 3D snake game
+  version: 1.0.0
+
+servers:
+  - url: https://games-test.datsteam.dev
+    description: Test server
+  - url: https://games.datsteam.dev
+    description: Production server
+
+security:
+  - ApiKeyAuth: []
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-Auth-Token
+      description: Authentication token for API access
+
+  schemas:
+    Direction3D:
+      type: array
+      description: 3D direction [x, y, z]
+      minItems: 3
+      maxItems: 3
+      items:
+        type: integer
+      example: [0, 0, 0]
+
+    Point3D:
+      type: array
+      description: 3D point coordinates [x, y, z]
+      minItems: 3
+      maxItems: 3
+      items:
+        type: integer
+      example: [152, 51, 10]
+
+    SnakeRequest:
+      type: object
+      properties:
+        snakes:
+          type: array
+          items:
+            type: object
+            required:
+              - id
+              - direction
+            properties:
+              id:
+                type: string
+                description: Unique snake identifier
+                example: "6c1dfac6d106e6f4d0ffdddb665238253574ac1f"
+              direction:
+                $ref: "#/components/schemas/Direction3D"
+
+    Snake:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique snake identifier
+          example: "db59f7bff43351d69b540c666fa8ff9f1c81f05c"
+        direction:
+          type: array
+          description: Current direction vector [x, y, z]
+          items:
+            type: integer
+          example: [1, 0, 0]
+        oldDirection:
+          type: array
+          description: Previous direction vector [x, y, z]
+          items:
+            type: integer
+          example: [0, 0, -1]
+        geometry:
+          type: array
+          description: Snake body segments coordinates
+          items:
+            $ref: "#/components/schemas/Point3D"
+        deathCount:
+          type: integer
+          description: Number of times snake died
+          example: 16
+        status:
+          type: string
+          description: Current snake status
+          enum: [alive, dead]
+          example: "alive"
+        reviveRemainMs:
+          type: integer
+          description: Milliseconds remaining until revival if dead
+          example: 0
+
+    Enemy:
+      type: object
+      properties:
+        geometry:
+          type: array
+          description: Enemy body segments coordinates
+          items:
+            $ref: "#/components/schemas/Point3D"
+        status:
+          type: string
+          enum: [alive, dead]
+          example: "alive"
+        kills:
+          type: integer
+          description: Number of kills by this enemy
+          example: 0
+
+    Food:
+      type: object
+      properties:
+        c:
+          $ref: "#/components/schemas/Point3D"
+        points:
+          type: integer
+          description: Points value of this food
+          example: 6
+
+    SpecialFood:
+      type: object
+      properties:
+        golden:
+          type: array
+          description: Array of golden food items
+          items:
+            $ref: "#/components/schemas/Point3D"
+        suspicious:
+          type: array
+          description: Array of suspicious food items
+          items:
+            $ref: "#/components/schemas/Point3D"
+
+    GameState:
+      type: object
+      properties:
+        mapSize:
+          type: array
+          description: Map dimensions [width, height, depth]
+          items:
+            type: integer
+          example: [180, 180, 30]
+        name:
+          type: string
+          description: Game instance name
+          example: "CleanCrib envious"
+        points:
+          type: integer
+          description: Current score
+          example: 275
+        fences:
+          type: array
+          description: Array of fence coordinates
+          items:
+            $ref: "#/components/schemas/Point3D"
+        snakes:
+          type: array
+          description: Array of snakes in the game
+          items:
+            $ref: "#/components/schemas/Snake"
+        enemies:
+          type: array
+          description: Array of enemies in the game
+          items:
+            $ref: "#/components/schemas/Enemy"
+        food:
+          type: array
+          description: Array of regular food items
+          items:
+            $ref: "#/components/schemas/Food"
+        specialFood:
+          $ref: "#/components/schemas/SpecialFood"
+        turn:
+          type: integer
+          description: Current game turn number
+          example: 1548
+        reviveTimeoutSec:
+          type: integer
+          description: Seconds until snake revival
+          example: 5
+        tickRemainMs:
+          type: integer
+          description: Milliseconds remaining in current turn
+          example: 60
+        errors:
+          type: array
+          description: Array of error messages if any
+          items:
+            type: string
+          example: []
+
+    Round:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the game round
+          example: "final-3"
+        startAt:
+          type: string
+          format: date-time
+          description: Round start time in ISO 8601 format
+          example: "2024-10-12T16:00:00Z"
+        endAt:
+          type: string
+          format: date-time
+          description: Round end time in ISO 8601 format
+          example: "2024-10-12T16:55:00Z"
+        duration:
+          type: integer
+          description: Duration of the round in seconds
+          example: 3300
+        status:
+          type: string
+          description: Current status of the round
+          enum: [not started, active, ended]
+          example: "ended"
+        repeat:
+          type: integer
+          description: Number of times the round repeats (0 for no repeat)
+          example: 0
+
+    GameRoundsResponse:
+      type: object
+      required:
+        - gameName
+        - rounds
+        - now
+      properties:
+        gameName:
+          type: string
+          description: Name of the game
+          example: "snake3d"
+        rounds:
+          type: array
+          description: List of game rounds
+          items:
+            $ref: "#/components/schemas/Round"
+        now:
+          type: string
+          format: date-time
+          description: Current server time in ISO 8601 format
+          example: "2024-12-19T10:45:45.632269185Z"
+paths:
+  /play/snake3d/player/move:
+    post:
+      summary: Move snake
+      description: Send movement command for a snake
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SnakeRequest"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GameState"
+        "400":
+          description: Invalid request body
+        "401":
+          description: Unauthorized - invalid or missing API key
+        "404":
+          description: Snake not found
+        "500":
+          description: Internal server error
+  /rounds/snake3d:
+    get:
+      summary: Get game rounds
+      description: Returns information about all rounds for a specific game
+      security: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GameRoundsResponse"
+              example:
+                gameName: "snake3d"
+                rounds:
+                  - name: "final-3"
+                    startAt: "2024-10-12T16:00:00Z"
+                    endAt: "2024-10-12T16:55:00Z"
+                    duration: 3300
+                    status: "ended"
+                    repeat: 0
+                  - name: "final-2"
+                    startAt: "2024-10-12T15:00:00Z"
+                    endAt: "2024-10-12T15:55:00Z"
+                    duration: 3300
+                    status: "ended"
+                    repeat: 0
+                  - name: "final-1"
+                    startAt: "2024-10-12T14:00:00Z"
+                    endAt: "2024-10-12T14:55:00Z"
+                    duration: 3300
+                    status: "ended"
+                    repeat: 0
+                now: "2024-12-19T10:45:45.632269185Z"
+        "404":
+          description: Game not found
+        "500":
+          description: Internal server error

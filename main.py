@@ -5,6 +5,8 @@ import playermove
 import requests
 import time
 from datetime import datetime
+import DataDef as gamedata
+import json
 
 API_KEY = ""
 
@@ -19,5 +21,9 @@ SERVER = "https://games.datsteam.dev/"
 SERVER = "https://games-test.datsteam.dev/"
 
 #rounds.get_rounds(API_KEY, SERVER)
-gamestate_json = playermove.move(API_KEY, SERVER)
+data = playermove.move(API_KEY, SERVER)
+
+#gs = gamedata.GameState.model_validate_json(data)
+gs = gamedata.GameState.parse_obj(data)
+print(json.dumps(game_state.dict(), indent=4))
 
