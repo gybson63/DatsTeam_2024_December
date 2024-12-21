@@ -1,5 +1,5 @@
 from typing import List, Optional
-from pydantic import BaseModel, Field, RootModel
+from pydantic import BaseModel, Field, RootModel, field_validator, ValidationError
 from datetime import datetime
 
 # Определяем классы для Direction3D и Point3D как RootModel
@@ -7,7 +7,7 @@ class Direction3D(RootModel):
     root: List[int] = Field(..., min_items=3, max_items=3, example=[0, 0, 0])
 
 class Point3D(RootModel):
-    root: List[int] = Field(..., min_items=3, max_items=3, example=[152, 51, 10])
+    root: List[int] = Field(..., min_items=3, max_items=3, example=[0, 0, 0])
 
 # Определяем класс для SnakeRequest
 class SnakeRequest(BaseModel):
@@ -29,6 +29,7 @@ class Snake(BaseModel):
 
 # Определяем класс для Enemy
 class Enemy(BaseModel):
+    
     geometry: List[Point3D] = Field(..., description="Enemy body segments coordinates")
     status: str = Field(..., enum=["alive", "dead"], example="alive")
     kills: int = Field(..., description="Number of kills by this enemy", example=0)

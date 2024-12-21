@@ -25,5 +25,5 @@ data = playermove.move(API_KEY, SERVER)
 
 #gs = gamedata.GameState.model_validate_json(data)
 gs = gamedata.GameState.parse_obj(data)
-print(json.dumps(game_state.dict(), indent=4))
+#print(json.dumps(data, indent=4))
 
