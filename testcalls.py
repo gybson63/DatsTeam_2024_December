@@ -18,4 +18,16 @@ data = json.loads(open('responses/20241220_211019_647.json').read())
 game_response = gamedata.GameState.model_validate(data)
 gs = gamestate.GameState(data)
 
-print(gs.get_directions())
+dirs = gs.get_directions()
+
+snakes = []
+for key, value in dirs.items():
+    snakes.append({"id":key.id, "direction" : [value.x, value.y, value.z]})
+    print(key.id, value.get_tuple())
+
+body = {"snakes":snakes}
+for snake in gs.snakes:
+        posstr = "X"
+        if snake.status != "dead":
+            posstr = str(snake.points[0].get_tuple())
+        print(snake.id, snake.status, posstr)
