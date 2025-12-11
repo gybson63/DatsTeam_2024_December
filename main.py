@@ -41,11 +41,7 @@ while True:
     game_response = gamedata.GameState.model_validate(data)
     gs = gamestate.GameState(data)
     print("Набрали вон сколько очков!", gs.points)
-    #if gs.points>points:
-    #    points = gs.points
-    #elif points!=0 and gs.points == 0:
-    #    raise "Очки УКРАЛИ!!!"
-
+    
     #dirs = gs.get_directions()
     #dirs = gs.get_directions_bycost()
     dirs = gs.get_directions_bycenter()
@@ -70,12 +66,6 @@ while True:
 
         body = {"snakes":snakes}
         data = playermove.move(API_KEY, SERVER, json.dumps(body))
-        #start_time = time.time()
-        #header={"X-Auth-Token" : API_KEY, 'Content-Type': 'application/json'}
-        #response = requests.post(SERVER+"play/snake3d/player/move", headers = header, data=data)
-        #end_time = time.time()
-        #print(f"Время выполнения request внутри: {end_time - start_time:.4f} секунд")
-
     #
     #
     #

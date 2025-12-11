@@ -103,7 +103,7 @@ class GameState:
 
         self.bad_list = []
         for g in gs.specialFood.suspicious:
-           self. bad_list.append((g.root[0], g.root[1], g.root[2]))
+           self.bad_list.append((g.root[0], g.root[1], g.root[2]))
 
         self.foods = []
         foods_coord_temp = []
@@ -128,6 +128,12 @@ class GameState:
         self.points = gs.points
 
         self.obstacles = set(self.get_obstacles())
+
+    def in_bounds(self, p):
+        if 0 <= p.x < self.width and 0 <= p.y < self.high and 0 <= p.z < self.depth:
+            return True
+        else:
+            return False
 
     def get_snake(self, x, y, z):
         for snake in self.snakes:
@@ -304,7 +310,7 @@ class GameState:
             snake_pos = snakes_arr[hunter_index]
             snake = self.get_snake(snake_pos[0], snake_pos[1], snake_pos[2])
             food_pos = food_arr[target_index]
-            direct = self.find_way(snake.points[0], Point(food_pos[0], food_pos[1], food_pos[2]), obstacles)
+            direct = self.find_way(snake.points[0], Point(food_pos[0], food_pos[1], food_pos[2]))
             print(f"Охотник на позиции {snake_pos} назначен к цели на позиции {food_pos}, расстояние: {distance_matrix[hunter_index, target_index]:.2f}?, направление {direct.get_tuple()}, стоимость {food_arr_points[target_index]}")
             res[snake] = direct
 
@@ -342,7 +348,7 @@ class GameState:
             snake_pos = snakes_arr[hunter_index]
             snake = self.get_snake(snake_pos[0], snake_pos[1], snake_pos[2])
             food_pos = food_arr[target_index]
-            direct = self.find_way(snake.points[0], Point(food_pos[0], food_pos[1], food_pos[2]), obstacles)
+            direct = self.find_way(snake.points[0], Point(food_pos[0], food_pos[1], food_pos[2]))
             print(f"Охотник на позиции {snake_pos} назначен к цели на позиции {food_pos}, расстояние: {distance_matrix[hunter_index, target_index]:.2f}?, направление {direct.get_tuple()}, стоимость {food_arr_points[target_index]}")
             res[snake] = direct
 
@@ -397,6 +403,8 @@ class GameState:
             food_pos = food_arr[target_index]
             #direct = self.find_way(snake.points[0], Point(food_pos[0], food_pos[1], food_pos[2]), obstacles)
             print(f"Охотник на позиции {snake_pos} назначен к цели на позиции {food_pos}, расстояние: {distance_matrix[hunter_index, target_index]:.2f}?, стоимость {food_arr_points[target_index]}")
-            res[snake] = Point(food_pos[0], food_pos[1], food_pos[2])
+            p = Point(food_pos[0], food_pos[1], food_pos[2])
+            if self.in_bounds(p):
+                res[snake] = p
 
         return res
