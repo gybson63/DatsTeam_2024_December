@@ -66,7 +66,7 @@ while True:
             dir = gs.find_way(key.points[0], target)
             if not dir is None:
                 snakes.append({"id":key.id, "direction" : [dir.x, dir.y, dir.z]})
-            print(key.points[0].get_tuple(), " --> ",dir.get_tuple(), " --> ",target.get_tuple())
+                print(key.points[0].get_tuple(), " --> ",dir.get_tuple(), " --> ",target.get_tuple())
 
         body = {"snakes":snakes}
         data = playermove.move(API_KEY, SERVER, json.dumps(body))
