@@ -19,7 +19,7 @@ def move(API_KEY, SERVER, data = None):
         data = {'snakes': []}
 
     start_time = time.time()
-    response = requests.post(SERVER+"play/snake3d/player/move", headers = header, data=data)
+    response = requests.post(SERVER+"api/move", headers = header, data=data)
     end_time = time.time()
     print(f"Время выполнения request: {end_time - start_time:.4f} секунд")
     gamestate = response.json()
